@@ -1,8 +1,11 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+import ttkbootstrap as ttkb
+from ttkbootstrap.constants import *
 import subprocess
 import os
 import platform
+from PIL import Image, ImageTk
 
 def select_input_file():
     if platform.system() == "Windows":
@@ -64,41 +67,70 @@ def convert_video():
     except subprocess.CalledProcessError:
         messagebox.showerror("Error", "Conversion failed. Please make sure ffmpeg is installed and the input file is valid.")
 
+def toggle_theme():
+    if root.style.theme.name == "darkly":
+        root.style.theme_use("litera")
+    else:
+        root.style.theme_use("darkly")
+
 # Create the main window
-root = tk.Tk()
+root = ttkb.Window(themename="darkly")
 root.title("MP4 to GIF Converter")
+root.geometry("600x400")
+
+# Create a style
+style = ttkb.Style()
+
+# Create main frame
+main_frame = ttk.Frame(root, padding="20 20 20 20")
+main_frame.pack(fill=BOTH, expand=YES)
 
 # Input file selection
-tk.Label(root, text="Input MP4 file:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
-input_entry = tk.Entry(root, width=50)
-input_entry.grid(row=0, column=1, padx=5, pady=5)
-tk.Button(root, text="Browse", command=select_input_file).grid(row=0, column=2, padx=5, pady=5)
+input_frame = ttk.Frame(main_frame)
+input_frame.pack(fill=X, pady=5)
+ttk.Label(input_frame, text="Input MP4 file:").pack(side=LEFT)
+input_entry = ttk.Entry(input_frame, width=50)
+input_entry.pack(side=LEFT, expand=YES, fill=X, padx=5)
+ttk.Button(input_frame, text="Browse", command=select_input_file).pack(side=LEFT)
 
 # Output folder selection
-tk.Label(root, text="Output folder:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
-output_folder_entry = tk.Entry(root, width=50)
-output_folder_entry.grid(row=1, column=1, padx=5, pady=5)
-tk.Button(root, text="Browse", command=select_output_folder).grid(row=1, column=2, padx=5, pady=5)
+output_frame = ttk.Frame(main_frame)
+output_frame.pack(fill=X, pady=5)
+ttk.Label(output_frame, text="Output folder:").pack(side=LEFT)
+output_folder_entry = ttk.Entry(output_frame, width=50)
+output_folder_entry.pack(side=LEFT, expand=YES, fill=X, padx=5)
+ttk.Button(output_frame, text="Browse", command=select_output_folder).pack(side=LEFT)
 
 # Output filename input
-tk.Label(root, text="Output filename:").grid(row=2, column=0, sticky="e", padx=5, pady=5)
-output_filename_entry = tk.Entry(root, width=50)
-output_filename_entry.grid(row=2, column=1, padx=5, pady=5)
-tk.Label(root, text=".gif").grid(row=2, column=2, sticky="w")
+filename_frame = ttk.Frame(main_frame)
+filename_frame.pack(fill=X, pady=5)
+ttk.Label(filename_frame, text="Output filename:").pack(side=LEFT)
+output_filename_entry = ttk.Entry(filename_frame, width=50)
+output_filename_entry.pack(side=LEFT, expand=YES, fill=X, padx=5)
+ttk.Label(filename_frame, text=".gif").pack(side=LEFT)
 
-# FPS input
-tk.Label(root, text="FPS:").grid(row=3, column=0, sticky="e", padx=5, pady=5)
-fps_entry = tk.Entry(root, width=10)
-fps_entry.grid(row=3, column=1, sticky="w", padx=5, pady=5)
-fps_entry.insert(0, "10")  # Default value
+# FPS and Image Height inputs
+settings_frame = ttk.Frame(main_frame)
+settings_frame.pack(fill=X, pady=5)
+ttk.Label(settings_frame, text="FPS:").pack(side=LEFT)
+fps_entry = ttk.Entry(settings_frame, width=10)
+fps_entry.pack(side=LEFT, padx=(0, 20))
+fps_entry.insert(0, "10")
+ttk.Label(settings_frame, text="Image Height:").pack(side=LEFT)
+image_height_entry = ttk.Entry(settings_frame, width=10)
+image_height_entry.pack(side=LEFT)
+image_height_entry.insert(0, "225")
 
-# Image Height input
-tk.Label(root, text="Image Height:").grid(row=4, column=0, sticky="e", padx=5, pady=5)
-image_height_entry = tk.Entry(root, width=10)
-image_height_entry.grid(row=4, column=1, sticky="w", padx=5, pady=5)
-image_height_entry.insert(0, "225")  # Default value
+# Progress bar
+progress_bar = ttk.Progressbar(main_frame, length=400, mode='indeterminate')
+progress_bar.pack(pady=10)
 
 # Convert button
-tk.Button(root, text="Convert", command=convert_video).grid(row=5, column=1, pady=10)
+convert_button = ttk.Button(main_frame, text="Convert", command=convert_video, style="Accent.TButton")
+convert_button.pack(pady=10)
+
+# Theme toggle button
+theme_button = ttk.Checkbutton(main_frame, text="Dark Mode", style="Switch.TCheckbutton", command=toggle_theme)
+theme_button.pack(pady=10)
 
 root.mainloop()
